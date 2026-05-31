@@ -55,7 +55,7 @@ run_quick_scan() {
             echo "50"
             bash "$BASE_DIR/ai/groq_agent.sh" "$tmp_out" > "${tmp_out}_ai" 2>&1
             echo "100"
-        ) | dialog --title "AI Analysis" --gauge "Analyzing results with Groq..." 8 70 0
+        ) | dialog --title "AI Analysis" --gauge "Analyzing results with Google Gen AI..." 8 70 0
         
         AI_OUT=$(cat "${tmp_out}_ai")
         stream_ai_response "$AI_OUT"
@@ -93,7 +93,7 @@ run_full_analysis() {
             echo "50"
             bash "$BASE_DIR/ai/groq_agent.sh" "$tmp_out" > "${tmp_out}_ai" 2>&1
             echo "100"
-        ) | dialog --title "AI Analysis" --gauge "Analyzing results with Groq..." 8 70 0
+        ) | dialog --title "AI Analysis" --gauge "Analyzing results with Google Gen AI..." 8 70 0
         
         AI_OUT=$(cat "${tmp_out}_ai")
         stream_ai_response "$AI_OUT"

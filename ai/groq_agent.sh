@@ -15,9 +15,17 @@ if [ -z "$INPUT_DATA" ]; then
     exit 1
 fi
 
-if [ "$GROQ_API_KEY" == "your-groq-api-key-here" ] || [ -z "$GROQ_API_KEY" ]; then
-    echo "Error: GROQ_API_KEY is not configured in config.sh"
+if [ "$GOOGLE_API_KEY" == "your-google-api-key-here" ] || [ -z "$GOOGLE_API_KEY" ]; then
+    echo "Error: GOOGLE_API_KEY is not configured in config.sh"
     exit 1
+fi
+
+if [ -z "$GOOGLE_MODEL" ]; then
+    GOOGLE_MODEL="chat-bison-001"
+fi
+
+if [ -z "$GOOGLE_API_URL" ]; then
+    GOOGLE_API_URL="https://generativelanguage.googleapis.com/v1beta2/models/$GOOGLE_MODEL:generateMessage"
 fi
 
 # Escape JSON for curl using jq
@@ -29,32 +37,46 @@ ESCAPED_SYSTEM=$(jq -Rs . <<< "$SYSTEM_PROMPT")
 # Build JSON payload
 PAYLOAD=$(cat <<EOF
 {
-  "model": "$GROQ_MODEL",
   "messages": [
     {
-      "role": "system",
-      "content": ${ESCAPED_SYSTEM}
+      "author": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": ${ESCAPED_SYSTEM}
+        }
+      ]
     },
     {
-      "role": "user",
-      "content": ${ESCAPED_DATA}
+      "author": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": ${ESCAPED_DATA}
+        }
+      ]
     }
-  ]
+  ],
+  "temperature": 0.2
 }
 EOF
 )
 
 # Make API call
-RESPONSE=$(curl -s -X POST "$GROQ_API_URL" \
-     -H "Authorization: Bearer $GROQ_API_KEY" \
+RESPONSE=$(curl -s -X POST "$GOOGLE_API_URL?key=$GOOGLE_API_KEY" \
      -H "Content-Type: application/json" \
      -d "$PAYLOAD")
 
 # Parse response
-AI_MESSAGE=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+AI_MESSAGE=$(echo "$RESPONSE" | jq -r '
+  if .candidates then
+    (.candidates[0].content[] | select(.type == "output_text").text) 
+  else
+    empty
+  end' | head -n 1)
 
 if [ "$AI_MESSAGE" == "null" ] || [ -z "$AI_MESSAGE" ]; then
-    echo "Error calling Groq API: $(echo "$RESPONSE" | jq -r '.error.message // empty')"
+    echo "Error calling Google Gen AI: $(echo "$RESPONSE" | jq -r '.error.message // empty')"
 else
     echo "$AI_MESSAGE"
 fi

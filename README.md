@@ -1,14 +1,14 @@
 # 🌐 AI Network Analyzer
 
 <p align="center">
-  A powerful Bash-based network diagnostic tool powered by Groq's ultra-fast LLaMA 3 AI.
+  A powerful Bash-based network diagnostic tool powered by Google Gen AI.
 </p>
 
 ## ✨ Features
 
 - **Interactive UI**: Fully terminal-based UI using `dialog` with progress bars and menus.
 - **Multiple Diagnostic Tools**: Built-in scripts for Ping, Traceroute, DNS Lookups, Port Scanning, Netstat, and Speed Testing.
-- **AI-Powered Analysis**: Feeds the raw diagnostic data into Groq's API to analyze security risks, performance issues, and suggests exact fix commands.
+- **AI-Powered Analysis**: Feeds the raw diagnostic data into Google Gen AI to analyze security risks, performance issues, and suggest exact fix commands.
 - **Streaming Output**: Watch the AI analyze your network word-by-word right inside your terminal.
 - **Automated Reporting**: Every analysis is automatically saved as a `.txt` report for future review.
 
@@ -48,9 +48,9 @@ To run this tool, you need a **Linux** environment (or WSL on Windows). Ensure y
      ```bash
      cp config.example.sh config.sh
      ```
-   - Open `config.sh` and add your [Groq API Key](https://console.groq.com/keys):
+   - Open `config.sh` and add your [Google Cloud API Key](https://cloud.google.com/docs/authentication/api-keys):
      ```bash
-     export GROQ_API_KEY="your-groq-api-key-here"
+     export GOOGLE_API_KEY="your-google-api-key-here"
      ```
 
 ---
@@ -79,7 +79,7 @@ ai-network-analyzer/
 ├── config.sh            # API keys and environment variables (Not tracked in Git)
 ├── config.example.sh    # Example config template
 ├── tools/               # Network diagnostic scripts
-├── ai/                  # Groq API integration and prompt handling
+├── ai/                  # Google Gen AI integration and prompt handling
 ├── ui/                  # Dialog-based terminal interface
 └── reports/             # Auto-generated analysis reports
 ```

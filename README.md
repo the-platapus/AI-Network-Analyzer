@@ -1,32 +1,34 @@
-# 🌐 AI Network Analyzer
+# 🔒 Wi-Fi Security Auditor
 
 <p align="center">
-  A powerful Bash-based network diagnostic tool powered by Google Gen AI.
+  A Bash-based Wi-Fi security audit tool with AI-assisted analysis and the Aircrack-ng suite.
 </p>
 
 ## ✨ Features
 
-- **Interactive UI**: Fully terminal-based UI using `dialog` with progress bars and menus.
-- **Multiple Diagnostic Tools**: Built-in scripts for Ping, Traceroute, DNS Lookups, Port Scanning, Netstat, and Speed Testing.
-- **AI-Powered Analysis**: Feeds the raw diagnostic data into Google Gen AI to analyze security risks, performance issues, and suggest exact fix commands.
-- **Streaming Output**: Watch the AI analyze your network word-by-word right inside your terminal.
-- **Automated Reporting**: Every analysis is automatically saved as a `.txt` report for future review.
+- **Fully automated AI Wi-Fi security audit**: Select either your connected network or another nearby Wi-Fi and collect security telemetry automatically.
+- **Automated reconnaissance**: Uses `airmon-ng`/`airodump-ng` to gather wireless access point data and capture packets.
+- **AI-powered security scoring**: Sends all collected data to Google Gen AI and returns a security score, vulnerability findings, and remediation guidance.
+- **Report generation**: Saves the complete audit and AI analysis as a `.txt` report in `reports/`.
 
 ---
 
 ## 🚀 Requirements
 
-To run this tool, you need a **Linux** environment (or WSL on Windows). Ensure you have the following packages installed:
+To run this tool, you need a **Linux** environment with the following packages installed:
 
 - `dialog`
 - `jq`
 - `curl`
+- `aircrack-ng`
+- `iw`
+- `wireless-tools`
 - `nmap`
 - `dnsutils` (or `bind-utils`)
 - `net-tools`
 - `iproute2`
 
-*Note: The script will automatically attempt to install any missing dependencies on first run.*
+*Note: The main script can attempt to install missing dependencies automatically if your package manager is supported.*
 
 ---
 
@@ -35,7 +37,7 @@ To run this tool, you need a **Linux** environment (or WSL on Windows). Ensure y
 1. **Clone the repository:**
    ```bash
    git clone <your-repository-url>
-   cd ai-network-analyzer
+   cd AI-Network-Analyzer
    ```
 
 2. **Make scripts executable:**
@@ -48,7 +50,7 @@ To run this tool, you need a **Linux** environment (or WSL on Windows). Ensure y
      ```bash
      cp config.example.sh config.sh
      ```
-   - Open `config.sh` and add your [Google Cloud API Key](https://cloud.google.com/docs/authentication/api-keys):
+   - Open `config.sh` and add your Google API key:
      ```bash
      export GOOGLE_API_KEY="your-google-api-key-here"
      ```
@@ -57,34 +59,39 @@ To run this tool, you need a **Linux** environment (or WSL on Windows). Ensure y
 
 ## 🎮 Usage
 
-Simply run the main analyzer script from your terminal:
+Run the main auditor script from your terminal:
 
 ```bash
 ./analyzer.sh
 ```
 
 ### Main Menu Options:
-1. **Quick Scan:** Runs a fast Ping, DNS, and Port scan on the default host.
-2. **Full Network Analysis:** Runs all diagnostic tools for a comprehensive system check.
-3. **Check Specific Host:** Allows you to input any IP or Domain (e.g., `google.com`) to analyze.
-4. **View Saved Reports:** Read previously generated analysis reports.
+1. **Automated Wi-Fi Security Audit:** Choose either your connected Wi-Fi or another nearby network, gather reconnaissance and capture data, then send everything to AI for a security score and audit report.
+
+---
+
+## ⚠️ Important Notes
+
+- Handshake capture requires root privileges and may temporarily disrupt your wireless connection.
+- Use this tool only on networks you own or have explicit permission to audit.
+- Cracking a handshake is only effective if the capture contains a valid WPA/WPA2 handshake and the wordlist includes the correct passphrase.
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-ai-network-analyzer/
+AI-Network-Analyzer/
 ├── analyzer.sh          # Main entry script
 ├── config.sh            # API keys and environment variables (Not tracked in Git)
 ├── config.example.sh    # Example config template
-├── tools/               # Network diagnostic scripts
+├── tools/               # Wi-Fi audit helper scripts
 ├── ai/                  # Google Gen AI integration and prompt handling
 ├── ui/                  # Dialog-based terminal interface
-└── reports/             # Auto-generated analysis reports
+└── reports/             # Auto-generated audit reports
 ```
 
 ---
 
 ## 🤝 Contributing
-Feel free to open issues or submit pull requests if you want to add more network tools or improve the AI prompts!
+Feel free to open issues or submit pull requests to add more Wi-Fi assessment features or improve the AI analysis prompts.

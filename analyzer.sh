@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Main entry point for AI Network Analyzer
+# Main entry point for Wi-Fi Security Auditor
 
 # Set directory variables
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,7 +8,7 @@ export BASE_DIR
 
 # Check dependencies
 MISSING_DEPS=""
-for dep in dialog jq curl ping traceroute dig nmap netstat; do
+for dep in dialog jq curl airmon-ng airodump-ng aircrack-ng iw iwgetid timeout; do
     if ! command -v "$dep" &> /dev/null; then
         MISSING_DEPS="$MISSING_DEPS $dep"
     fi
@@ -19,9 +19,9 @@ if [ -n "$MISSING_DEPS" ]; then
     read -p "Would you like to try installing them? (requires sudo) [y/N] " install_choice
     if [[ "$install_choice" =~ ^[Yy]$ ]]; then
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y dialog jq curl iputils-ping traceroute dnsutils nmap net-tools iproute2
+            sudo apt-get update && sudo apt-get install -y dialog jq curl aircrack-ng wireless-tools iw iproute2
         elif command -v yum &> /dev/null; then
-            sudo yum install -y dialog jq curl iputils traceroute bind-utils nmap net-tools iproute
+            sudo yum install -y dialog jq curl aircrack-ng wireless-tools iw iproute
         else
             echo "Unsupported package manager. Please install missing dependencies manually."
             exit 1
@@ -40,5 +40,8 @@ else
     exit 1
 fi
 
-# Launch UI
-source "$BASE_DIR/ui/interface.sh"
+# Ensure reports directory exists
+mkdir -p "$BASE_DIR/$REPORT_DIR"
+
+# Run the automated Wi-Fi security audit
+bash "$BASE_DIR/tools/wifi_auto_audit.sh"

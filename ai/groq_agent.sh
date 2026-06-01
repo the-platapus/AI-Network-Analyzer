@@ -10,6 +10,8 @@ else
     INPUT_DATA="$1"
 fi
 
+PROMPT_OVERRIDE="$2"
+
 if [ -z "$INPUT_DATA" ]; then
     echo "Error: No data provided for AI analysis."
     exit 1
@@ -31,7 +33,12 @@ fi
 # Escape JSON for curl using jq
 ESCAPED_DATA=$(jq -Rs . <<< "$INPUT_DATA")
 
-SYSTEM_PROMPT="You are an expert network security analyst. Analyze the following network diagnostics data and provide: 1) Critical issues found, 2) Security risks, 3) Performance problems, 4) Exact fix commands for each issue. Be concise and use bullet points."
+if [ -n "$PROMPT_OVERRIDE" ]; then
+    SYSTEM_PROMPT="$PROMPT_OVERRIDE"
+else
+    SYSTEM_PROMPT="You are an expert network security analyst. Analyze the following network diagnostics data and provide: 1) Critical issues found, 2) Security risks, 3) Performance problems, 4) Exact fix commands for each issue. Be concise and use bullet points."
+fi
+
 ESCAPED_SYSTEM=$(jq -Rs . <<< "$SYSTEM_PROMPT")
 
 # Build JSON payload

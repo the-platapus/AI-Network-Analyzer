@@ -28,6 +28,9 @@ cleanup() {
     NM_WAS_STOPPED=false
     sleep 2   # give NM a moment to reconnect before the terminal returns
   fi
+  # Reset terminal colors and clear the screen to fix any residual blue background from dialog
+  tput sgr0 2>/dev/null || echo -ne "\e[0m"
+  clear
 }
 
 # Register cleanup on every possible exit path
@@ -73,7 +76,8 @@ build_network_menu() {
   if is_tool_installed nmcli; then
     while read -r line; do
       local ssid bssid channel security
-      IFS=':' read -r ssid bssid channel security <<< "$line"
+      # Do not use -r here so that escaped colons (e.g. \:) in MAC addresses are parsed properly
+      IFS=':' read ssid bssid channel security <<< "$line"
       [ -z "$ssid" ] && ssid="<hidden>"
       [ -z "$security" ] && security="OPEN"
       menu+=("$count" "SSID: $ssid | BSSID: $bssid | Ch: $channel | Sec: $security")
@@ -264,9 +268,11 @@ while true; do
 
   # Fallback to nmcli for connected network info if available
   if [ -z "$target_ssid" ] && command -v nmcli >/dev/null 2>&1; then
-    nm_entry=$(nmcli -t -f IN-USE,SSID,BSSID,CHAN,SECURITY dev wifi list | awk -F: '$1 == "*" {print $2"|"$3"|"$4"|"$5; exit}')
+    nm_entry=$(nmcli -t -f IN-USE,SSID,BSSID,CHAN,SECURITY dev wifi list | grep '^\*' | head -n 1)
     if [ -n "$nm_entry" ]; then
-      IFS='|' read -r target_ssid target_bssid target_channel target_security <<< "$nm_entry"
+      local inuse
+      # Do not use -r so escaped colons are handled
+      IFS=':' read inuse target_ssid target_bssid target_channel target_security <<< "$nm_entry"
     fi
   fi
 else
@@ -340,7 +346,9 @@ if bash "$BASE_DIR/ai/agent.sh" "$tmp_out" "$WIFI_PROMPT" > "${tmp_out}_ai" 2>&1
   AI_OUTPUT=$(cat "${tmp_out}_ai")
   echo "$AI_OUTPUT" >> "$tmp_out"
   cp "$tmp_out" "$report_file"
-  dialog --title "Audit Complete" --msgbox "Automated Wi-Fi audit finished. Report saved to:\n$report_file" 12 70
+  
+  # Display the report with the AI analysis to the user
+  dialog --title "Audit Report & AI Analysis" --textbox "$report_file" 22 80
 else
   AI_OUTPUT=$(cat "${tmp_out}_ai")
   echo "AI Analysis Failed. Output:" >> "$tmp_out"

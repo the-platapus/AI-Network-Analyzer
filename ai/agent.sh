@@ -23,11 +23,11 @@ if [ "$GOOGLE_API_KEY" == "your-google-api-key-here" ] || [ -z "$GOOGLE_API_KEY"
 fi
 
 if [ -z "$GOOGLE_MODEL" ]; then
-    GOOGLE_MODEL="chat-bison-001"
+    GOOGLE_MODEL="gemini-flash-latest"
 fi
 
 if [ -z "$GOOGLE_API_URL" ]; then
-    GOOGLE_API_URL="https://generativelanguage.googleapis.com/v1beta2/models/$GOOGLE_MODEL:generateMessage"
+    GOOGLE_API_URL="https://generativelanguage.googleapis.com/v1beta/models/$GOOGLE_MODEL:generateContent"
 fi
 
 # Escape JSON for curl using jq
@@ -41,30 +41,25 @@ fi
 
 ESCAPED_SYSTEM=$(jq -Rs . <<< "$SYSTEM_PROMPT")
 
-# Build JSON payload
+# Build JSON payload for Gemini API
 PAYLOAD=$(cat <<EOF
 {
-  "messages": [
+  "contents": [
     {
-      "author": "system",
-      "content": [
+      "role": "user",
+      "parts": [
         {
-          "type": "text",
           "text": ${ESCAPED_SYSTEM}
-        }
-      ]
-    },
-    {
-      "author": "user",
-      "content": [
+        },
         {
-          "type": "text",
           "text": ${ESCAPED_DATA}
         }
       ]
     }
   ],
-  "temperature": 0.2
+  "generationConfig": {
+    "temperature": 0.2
+  }
 }
 EOF
 )
@@ -74,13 +69,13 @@ RESPONSE=$(curl -s -X POST "$GOOGLE_API_URL?key=$GOOGLE_API_KEY" \
      -H "Content-Type: application/json" \
      -d "$PAYLOAD")
 
-# Parse response
+# Parse response (Gemini returns the text in candidates[0].content.parts[0].text)
 AI_MESSAGE=$(echo "$RESPONSE" | jq -r '
   if .candidates then
-    (.candidates[0].content[] | select(.type == "output_text").text) 
+    .candidates[0].content.parts[0].text
   else
     empty
-  end' | head -n 1)
+  end')
 
 if [ "$AI_MESSAGE" == "null" ] || [ -z "$AI_MESSAGE" ]; then
     echo "Error calling Google Gen AI: $(echo "$RESPONSE" | jq -r '.error.message // empty')"
